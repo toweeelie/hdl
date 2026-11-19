@@ -10,7 +10,6 @@ set CACHE_COHERENCY false
 
 create_bd_intf_port -mode Master -vlnv xilinx.com:interface:ddrx_rtl:1.0 ddr
 create_bd_intf_port -mode Master -vlnv xilinx.com:display_processing_system7:fixedio_rtl:1.0 fixed_io
-create_bd_intf_port -mode Master -vlnv xilinx.com:interface:iic_rtl:1.0 iic_main
 
 create_bd_port -dir O spi0_csn_2_o
 create_bd_port -dir O spi0_csn_1_o
@@ -67,10 +66,6 @@ ad_ip_parameter sys_ps7 CONFIG.PCW_SPI0_PERIPHERAL_ENABLE 1
 ad_ip_parameter sys_ps7 CONFIG.PCW_SPI0_SPI0_IO EMIO
 ad_ip_parameter sys_ps7 CONFIG.PCW_SPI1_PERIPHERAL_ENABLE 1
 ad_ip_parameter sys_ps7 CONFIG.PCW_SPI1_SPI1_IO EMIO
-
-ad_ip_instance axi_iic axi_iic_main
-ad_ip_parameter axi_iic_main CONFIG.USE_BOARD_FLOW true
-ad_ip_parameter axi_iic_main CONFIG.IIC_BOARD_INTERFACE IIC_MAIN
 
 ad_ip_instance ilconcat sys_concat_intc
 ad_ip_parameter sys_concat_intc CONFIG.NUM_PORTS 16
@@ -142,7 +137,6 @@ ad_connect  gpio_i sys_ps7/GPIO_I
 ad_connect  gpio_o sys_ps7/GPIO_O
 ad_connect  gpio_t sys_ps7/GPIO_T
 ad_connect  fixed_io sys_ps7/FIXED_IO
-ad_connect  iic_main axi_iic_main/iic
 ad_connect  sys_200m_clk axi_hdmi_clkgen/clk
 
 # spi connections
@@ -209,7 +203,6 @@ ad_connect  sys_cpu_clk                 rom_sys_0/clk
 
 ad_connect  sys_concat_intc/dout sys_ps7/IRQ_F2P
 ad_connect  sys_concat_intc/In15 axi_hdmi_dma/irq
-ad_connect  sys_concat_intc/In14 axi_iic_main/iic2intc_irpt
 ad_connect  sys_concat_intc/In13 GND
 ad_connect  sys_concat_intc/In12 GND
 ad_connect  sys_concat_intc/In11 GND
@@ -227,7 +220,6 @@ ad_connect  sys_concat_intc/In0 GND
 
 # address map
 
-ad_cpu_interconnect 0x41600000 axi_iic_main
 ad_cpu_interconnect 0x45000000 axi_sysid_0
 ad_cpu_interconnect 0x79000000 axi_hdmi_clkgen
 ad_cpu_interconnect 0x43000000 axi_hdmi_dma

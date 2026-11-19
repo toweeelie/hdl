@@ -90,8 +90,7 @@ proc adi_project {project_name {mode 0} {parameter_list {}} } {
     set board "not-applicable"
   }
   if [regexp "_zc702" $project_name] {
-    set device "xc7z020clg484-1"
-    set board [lindex [lsearch -all -inline [get_board_parts] *zc702*] end]
+    set device "xc7z010clg400-1"
   }
   if [regexp "_zc706" $project_name] {
     set device "xc7z045ffg900-2"
