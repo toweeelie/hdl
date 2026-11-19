@@ -60,19 +60,6 @@ module system_top (
   inout                   fixed_io_ps_porb,
   inout                   fixed_io_ps_srstb,
 
-  inout       [11:0]      gpio_bd,
-
-  output                  hdmi_out_clk,
-  output                  hdmi_vsync,
-  output                  hdmi_hsync,
-  output                  hdmi_data_e,
-  output      [15:0]      hdmi_data,
-
-  output                  spdif,
-
-  inout                   iic_scl,
-  inout                   iic_sda,
-
   input                   rx_clk_in_p,
   input                   rx_clk_in_n,
   input                   rx_frame_in_p,
@@ -89,8 +76,6 @@ module system_top (
   output                  txnrx,
   output                  enable,
 
-  inout                   gpio_muxout_tx,
-  inout                   gpio_muxout_rx,
   inout                   gpio_resetb,
   inout                   gpio_sync,
   inout                   gpio_en_agc,
@@ -100,53 +85,34 @@ module system_top (
   output                  spi_csn,
   output                  spi_clk,
   output                  spi_mosi,
-  input                   spi_miso,
-
-  output                  spi_udc_csn_tx,
-  output                  spi_udc_csn_rx,
-  output                  spi_udc_sclk,
-  output                  spi_udc_data
-);
+  input                   spi_miso);
 
   // internal signals
-
   wire    [63:0]  gpio_i;
   wire    [63:0]  gpio_o;
   wire    [63:0]  gpio_t;
 
-  wire            tdd_sync_t;
-  wire            tdd_sync_o;
-  wire            tdd_sync_i;
 
   // instantiations
-
-  ad_iobuf #(
-    .DATA_WIDTH(17)
-  ) i_iobuf (
-    .dio_t ({gpio_t[50:49],gpio_t[46:32]}),
-    .dio_i ({gpio_o[50:49],gpio_o[46:32]}),
-    .dio_o ({gpio_i[50:49],gpio_i[46:32]}),
-    .dio_p ({ gpio_muxout_tx, // 50:50
-              gpio_muxout_rx, // 49:49
-              gpio_resetb,    // 46:46
-              gpio_sync,      // 45:45
-              gpio_en_agc,    // 44:44
-              gpio_ctl,       // 43:40
-              gpio_status})); // 39:32
-
-  ad_iobuf #(
-    .DATA_WIDTH(12)
-  ) i_gpio_bd (
-    .dio_t ({gpio_t[15:12], gpio_t[7:0]}),
-    .dio_i ({gpio_o[15:12], gpio_o[7:0]}),
-    .dio_o ({gpio_i[15:12], gpio_i[7:0]}),
-    .dio_p ({gpio_bd[7:4], gpio_bd[11:8], gpio_bd[3:0]}));
+wire  [31:0]   gpio_bd;
+wire gpio_muxout_tx;
+wire gpio_muxout_rx;
+  ad_iobuf #(.DATA_WIDTH(49)) i_iobuf_gpio (
+    .dio_t ({gpio_t[50:49], gpio_t[46:0]}),
+    .dio_i ({gpio_o[50:49], gpio_o[46:0]}),
+    .dio_o ({gpio_i[50:49], gpio_i[46:0]}),
+    .dio_p ({ gpio_muxout_tx,
+              gpio_muxout_rx,
+              gpio_resetb,
+              gpio_sync,
+              gpio_en_agc,
+              gpio_ctl,
+              gpio_status,
+              gpio_bd}));
 
   assign gpio_i[63:51] = gpio_o[63:51];
   assign gpio_i[48:47] = gpio_o[48:47];
-  assign gpio_i[31:16] = gpio_o[31:16];
-  assign gpio_i[11: 8] = gpio_o[11: 8];
-
+  
   system_wrapper i_system_wrapper (
     .ddr_addr (ddr_addr),
     .ddr_ba (ddr_ba),
@@ -172,20 +138,12 @@ module system_top (
     .gpio_i (gpio_i),
     .gpio_o (gpio_o),
     .gpio_t (gpio_t),
-    .hdmi_data (hdmi_data),
-    .hdmi_data_e (hdmi_data_e),
-    .hdmi_hsync (hdmi_hsync),
-    .hdmi_out_clk (hdmi_out_clk),
-    .hdmi_vsync (hdmi_vsync),
-    .iic_main_scl_io (iic_scl),
-    .iic_main_sda_io (iic_sda),
     .rx_clk_in_n (rx_clk_in_n),
     .rx_clk_in_p (rx_clk_in_p),
     .rx_data_in_n (rx_data_in_n),
     .rx_data_in_p (rx_data_in_p),
     .rx_frame_in_n (rx_frame_in_n),
     .rx_frame_in_p (rx_frame_in_p),
-    .spdif (spdif),
     .spi0_csn_i (1'b1),
     .spi0_csn_0_o (spi_csn),
     .spi0_csn_1_o(),
@@ -205,13 +163,13 @@ module system_top (
     .tdd_sync_o (),
     .tdd_sync_t (),
     .spi1_clk_i (1'b0),
-    .spi1_clk_o (spi_udc_sclk),
+    .spi1_clk_o (),
     .spi1_csn_i (1'b1),
-    .spi1_csn_0_o (spi_udc_csn_tx),
-    .spi1_csn_1_o (spi_udc_csn_rx),
+    .spi1_csn_0_o (),
+    .spi1_csn_1_o (),
     .spi1_csn_2_o(),
-    .spi1_sdo_i (spi_udc_data),
-    .spi1_sdo_o (spi_udc_data),
+    .spi1_sdo_i (),
+    .spi1_sdo_o (),
     .spi1_sdi_i (1'b0),
     .enable (enable),
     .txnrx (txnrx),
@@ -219,3 +177,6 @@ module system_top (
     .up_txnrx (gpio_o[48]));
 
 endmodule
+
+// ***************************************************************************
+// ***************************************************************************
